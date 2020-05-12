@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Visualization 1</title>
+    <script src="https://cdn.jsdelivr.net/npm/vega@5.11.1"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vega-lite@4.12.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vega-embed@6.7.1"></script>
+  </head>
+  <style>
+    h1 {text-align: center;}
+    h4 {text-align: center;}
+    form {text-align: center;}
+  </style>
+  <body>
+    <div id="wrap" style="margin: 0px 0px 100px;">
+      <div class="container">
+        <header>
+          <h1 id="title">Spotify Songs from 2010 - 2019</h1>
+          <h4 id="subtitle">
+            <span id="num-years">9</span>
+             years of top trending song data, visualized
+          </h4>
+          <form action="vis2.html">
+            <button class="btn" type="submit">Top K Artists Visualization</button>
+          </form>
+        </header>
+      </div> 
+    <div id="vis"></div>
+    <script type="text/javascript">
+      var yourVlSpec = {
+  "$schema": "https://vega.github.io/schema/vega-lite/v4.json",
+  "data": {
+    "url": "https://raw.githubusercontent.com/hhasan9979/Music-Visualization/master/TopSong2010-19%20-%20Sheet2.csv"
+  },
+  "columns": 2,
+  "concat": [
+    {
+      "repeat": {
+        "layer": [
+          "Energy",
+          "Danceability",
+          "Valence",
+          "Beats Per Minute",
+          "Popularity"
+        ]
+      },
+      "columns": 2,
+      "spec": {
+        "width": 500,
+        "height": 500,
+        "mark": {
+          "type": "line",
+          "point": {"filled": false, "fill": "white"},
+          "tooltip": true
+        },
+        "encoding": {
+          "x": {"field": "year", "type": "nominal"},
+          "y": {
+            "title": "Attribute Value",
+            "field": {"repeat": "layer"},
+            "aggregate": "mean",
+            "type": "quantitative",
+            "scale": {"domain": [40, 130]}
+          },
+          "color": {"datum": {"repeat": "layer"}, "type": "nominal"}
+        }
+      },
+      "transform": [{"filter": {"selection": "click"}}]
+    },
+    {
+      "repeat": ["Valence", "Danceability", "Energy", "Beats Per Minute"],
+      "columns": 2,
+      "spec": {
+        "width": 350,
+        "height": 250,
+        "selection": {
+          "highlight": {"type": "single", "empty": "none", "on": "mouseover"},
+          "brush": {"encodings": ["x"], "type": "interval"},
+          "select": {"type": "multi", "encodings": ["x", "y"]}
+        },
+        "transform": [
+          {"filter": {"selection": "click"}},
+          {"filter": {"selection": "select"}}
+        ],
+        "mark": {"type": "rect", "stroke": "black", "cursor": "pointer"},
+        "encoding": {
+          "y": {
+            "axis": {"title": "All Song Genres"},
+            "field": "top genre",
+            "type": "nominal"
+          },
+          "x": {"field": {"repeat": "repeat"}, "type": "ordinal", "bin": true},
+          "fillOpacity": {
+            "condition": {"selection": "select", "value": 1},
+            "value": 0.3
+          },
+          "strokeWidth": {
+            "condition": [
+              {
+                "test": {
+                  "and": [
+                    {"selection": "select"},
+                    "length(data(\"select_store\"))"
+                  ]
+                },
+                "value": 2
+              },
+              {"selection": "highlight", "value": 1}
+            ],
+            "value": 0
+          },
+          "tooltip": [
+            {"field": "title", "type": "ordinal"},
+            {"field": "artist", "type": "ordinal"},
+            {"field": "top genre", "type": "ordinal"},
+            {"field": {"repeat": "repeat"}, "type": "quantitative"},
+            {"field": "Popularity", "type": "ordinal"},
+            {"field": "year", "type": "ordinal"}
+          ],
+          "color": {
+            "aggregate": "mean",
+            "field": "Popularity",
+            "type": "quantitative",
+            "scale": {"range": ["white", "darkblue"]}
+          }
+        }
+      }
+    },
+    {
+      "encoding": {
+        "color": {
+          "condition": {
+            "field": "year",
+            "scale": {
+              "domain": [
+                "2010",
+                "2011",
+                "2012",
+                "2013",
+                "2014",
+                "2015",
+                "2016",
+                "2017",
+                "2018",
+                "2019"
+              ],
+              "range": [
+                "#e7ba52",
+                "#a7a7a7",
+                "#aec7e8",
+                "#1f77b4",
+                "#9467bd",
+                "#DA4167",
+                "#A42CD6",
+                "#9DBBAE",
+                "#FF82A9",
+                "#FCB07E"
+              ]
+            },
+            "selection": "click",
+            "type": "nominal"
+          },
+          "value": "lightgray"
+        },
+        "tooltip": [
+          {"field": "year", "type": "ordinal"},
+          {"field": "Popularity", "aggregate": "mean", "type": "quantitative"}
+        ],
+        "x": {
+          "aggregate": "mean",
+          "field": "Popularity",
+          "type": "quantitative"
+        },
+        "y": {"title": "Years", "field": "year", "type": "nominal"}
+      },
+      "width": 600,
+      "mark": "bar",
+      "selection": {"click": {"encodings": ["color"], "type": "multi"}},
+      "transform": [{"filter": {"selection": "brush"}}]
+    }
+  ],
+  "config": {"axis": {"grid": true, "tickBand": "extent"}}
+      };
+      vegaEmbed('#vis', yourVlSpec);
+    </script>
+    </div> 
+  </body>
+</html>
